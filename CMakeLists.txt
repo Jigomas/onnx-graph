@@ -9,6 +9,11 @@ add_library(onnx_graph_lib
     src/graph.cpp
     src/node.cpp
     src/tensor.cpp
+
+    src/onnx_loader.cpp
+    src/onnx_parser.cpp
+    src/visualizer.cpp
+    ${PROTO_SRCS}
 )
 
 target_include_directories(onnx_graph_lib PUBLIC include/)
