@@ -30,7 +30,7 @@ public:
     std::string        name;
     DataType           dtype          = DataType::UNKNOWN;
     TensorShape        shape;
-    bool               is_initialiser = false;
+    bool               is_initializer = false;
     std::vector<float> data;
 
     Tensor()                             = default;

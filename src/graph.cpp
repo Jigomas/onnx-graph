@@ -114,12 +114,6 @@ std::vector<Node*> Graph::TopologicalSort() const {
         }
     }
 
-    for (const auto& node_ptr : nodes) {
-        if (!visited[node_ptr->name]) {
-            TopologicalSortData(node_ptr.get(), visited, tensor_producer, result);
-        }
-    }
-
     return result;
 }
 

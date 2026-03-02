@@ -9,7 +9,7 @@
 
 
 
-static std::unique_ptr<Node> MakeNode (
+inline std::unique_ptr<Node> MakeNode (
     const std::string&              name,
     const std::string&              op_type,
     const std::vector<std::string>& inputs,
@@ -26,7 +26,7 @@ static std::unique_ptr<Node> MakeNode (
 
 
 
-static Tensor MakeTensor(
+inline Tensor MakeTensor(
     const std::string& name,
     DataType dtype,
     std::vector<int64_t> dims) 

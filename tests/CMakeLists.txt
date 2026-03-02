@@ -4,7 +4,7 @@ FetchContent_Declare(googletest
 FetchContent_MakeAvailable(googletest)
 
 add_executable(tests
-    test_graph_no_onnx.cpp
+    tests.cpp
 )
 
 target_link_libraries(tests

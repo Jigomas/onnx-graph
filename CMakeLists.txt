@@ -5,18 +5,26 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+find_package(Protobuf REQUIRED)
+
+set(PROTO_SRCS ${CMAKE_CURRENT_BINARY_DIR}/onnx.pb.cc)
+set(PROTO_HDRS ${CMAKE_CURRENT_BINARY_DIR}/onnx.pb.h)
+
 add_library(onnx_graph_lib
     src/graph.cpp
-    src/node.cpp
-    src/tensor.cpp
-
     src/onnx_loader.cpp
     src/onnx_parser.cpp
     src/visualizer.cpp
     ${PROTO_SRCS}
 )
 
-target_include_directories(onnx_graph_lib PUBLIC include/)
+target_include_directories(onnx_graph_lib PUBLIC
+    include/
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${Protobuf_INCLUDE_DIRS}
+)
+
+target_link_libraries(onnx_graph_lib PUBLIC protobuf::libprotobuf)
 
 target_compile_options(onnx_graph_lib PRIVATE
     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wpedantic>
