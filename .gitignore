@@ -22,6 +22,7 @@ _deps/
 *.pb.h
 
 # IDE
+test_viz_output/
 .vscode/
 .idea/
 *.swp
