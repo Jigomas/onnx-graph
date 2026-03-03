@@ -24,7 +24,7 @@ target_include_directories(onnx_graph_lib PUBLIC
     ${Protobuf_INCLUDE_DIRS}
 )
 
-target_link_libraries(onnx_graph_lib PUBLIC protobuf::libprotobuf)
+target_link_libraries(onnx_graph_lib PUBLIC protobuf::libprotobuf stdc++fs)
 
 target_compile_options(onnx_graph_lib PRIVATE
     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wpedantic>

@@ -1,51 +1,38 @@
 #include "../include/graph.hpp"
 
+#include <cassert>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
 
-
-
-Graph::Graph(const std::string& name): name(name) {}
+Graph::Graph(const std::string& name) : name(name) {}
 
 Graph Graph::Clone() const {
     Graph copy(name);
 
-    for (const auto& node_ptr : nodes) {  
+    for (const auto& node_ptr : nodes) {
         copy.nodes.push_back(std::make_unique<Node>(*node_ptr));
     }
 
     copy.tensors = tensors;
-    copy.inputs  = inputs;
+    copy.inputs = inputs;
     copy.outputs = outputs;
 
     return copy;
 }
 
-//TODO - provide error handling
-//TODO - try to rewrite on templates as much as i can
-//TODO - think that maybe change every   for (auto& ...)   to rval
-//TODO - ASSERTS
 void Graph::AddNode(std::unique_ptr<Node> node) {
-    if (!node) throw std::invalid_argument("Node is null");
+    if (!node)
+        throw std::invalid_argument("Graph::AddNode: node must not be null");
+
+    assert(!node->op_type.empty() && "AddNode: node op_type must not be empty");
+
+    if (FindNode(node->name) != nullptr)
+        throw std::invalid_argument("Graph::AddNode: node with name '" + node->name +
+                                    "' already exists");
 
     nodes.push_back(std::move(node));
 }
-
-
-
-void Graph::AddTensor(const Tensor& tensor) {
-    tensors[tensor.name] = tensor;
-}
-
-
-
-void Graph::AddTensor(Tensor&& tensor) {
-    std::string key = tensor.name;
-    tensors[key] = std::move(tensor);
-}
-
-
 
 Node* Graph::FindNode(const std::string& name) const {
     for (const auto& node_ptr : nodes) {
@@ -57,22 +44,17 @@ Node* Graph::FindNode(const std::string& name) const {
     return nullptr;
 }
 
-
-
-std::optional<Tensor> 
-Graph::FindTensor(const std::string& target_name) const {
+std::optional<Tensor> Graph::FindTensor(const std::string& target_name) const {
     auto it = tensors.find(target_name);
-    if (it == tensors.end()) 
+    if (it == tensors.end())
         return std::nullopt;
-    
+
     return it->second;
 }
 
-
-
 void Graph::DumpGraph() const {
-    std::cout << " Graph:   " << name           << '\n';
-    std::cout << " Nodes:   " << nodes.size()   << '\n';
+    std::cout << " Graph:   " << name << '\n';
+    std::cout << " Nodes:   " << nodes.size() << '\n';
     std::cout << " Tensors: " << tensors.size() << '\n';
 
     std::cout << " Inputs:  ";
@@ -81,8 +63,8 @@ void Graph::DumpGraph() const {
     std::cout << '\n';
 
     std::cout << " Outputs: ";
-    for (const auto& out : outputs) 
-                                        std::cout << out << ' ';
+    for (const auto& out : outputs)
+        std::cout << out << ' ';
     std::cout << '\n';
 
     for (const auto& node_ptr : nodes) {
@@ -93,8 +75,6 @@ void Graph::DumpGraph() const {
     }
 }
 
-
-
 std::vector<Node*> Graph::TopologicalSort() const {
     std::unordered_map<std::string, Node*> tensor_producer;
     for (const auto& node_ptr : nodes) {
@@ -103,13 +83,13 @@ std::vector<Node*> Graph::TopologicalSort() const {
         }
     }
 
-    std::unordered_map<std::string, bool> visited;
-    std::vector<Node*>                    result;
+    std::unordered_map<std::string, VisitState> visited;
+    std::vector<Node*> result;
 
     result.reserve(nodes.size());
 
     for (const auto& node_ptr : nodes) {
-        if (!visited[node_ptr->name]) {
+        if (visited[node_ptr->name] == VisitState::WHITE) {
             TopologicalSortData(node_ptr.get(), visited, tensor_producer, result);
         }
     }
@@ -117,27 +97,26 @@ std::vector<Node*> Graph::TopologicalSort() const {
     return result;
 }
 
-
-
-void Graph::TopologicalSortData(
-    Node*                                          node,
-    std::unordered_map<std::string, bool>&         visited,
-    const std::unordered_map<std::string, Node*>&  tensor_producer,
-    std::vector<Node*>&                            result) const
-{
-    visited[node->name] = true;
+void Graph::TopologicalSortData(Node* node,
+                                std::unordered_map<std::string, VisitState>& visited,
+                                const std::unordered_map<std::string, Node*>& tensor_producer,
+                                std::vector<Node*>& result) const {
+    visited[node->name] = VisitState::GRAY;
 
     for (const auto& input_name : node->inputs) {
         auto it = tensor_producer.find(input_name);
-
-        if (it == tensor_producer.end()) continue;
+        if (it == tensor_producer.end())
+            continue;
 
         Node* producer = it->second;
 
-        if (!visited[producer->name]) {
+        if (visited[producer->name] == VisitState::GRAY)
+            throw std::runtime_error("Cycle detected at node: " + producer->name);
+
+        if (visited[producer->name] == VisitState::WHITE)
             TopologicalSortData(producer, visited, tensor_producer, result);
-        }
     }
 
+    visited[node->name] = VisitState::BLACK;
     result.push_back(node);
 }

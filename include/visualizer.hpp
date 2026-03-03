@@ -1,18 +1,16 @@
 #pragma once
 
-#include "graph.hpp"
-
 #include <string>
 
-
+#include "graph.hpp"
 
 class Visualizer {
 public:
-    Visualizer()                                 = default;
-    ~Visualizer()                                = default;
-    Visualizer(const Visualizer&)                = default;
-    Visualizer& operator=(const Visualizer&)     = default;
-    Visualizer(Visualizer&&) noexcept            = default;
+    Visualizer() = default;
+    ~Visualizer() = default;
+    Visualizer(const Visualizer&) = default;
+    Visualizer& operator=(const Visualizer&) = default;
+    Visualizer(Visualizer&&) noexcept = default;
     Visualizer& operator=(Visualizer&&) noexcept = default;
 
     void ToDot(const Graph& graph, const std::string& filepath) const;
@@ -21,5 +19,5 @@ public:
 
 private:
     std::string GetNodeColor(const std::string& op_type) const;
-    std::string EscapeLabel(const std::string& label)    const;
+    std::string EscapeLabel(const std::string& label) const;
 };

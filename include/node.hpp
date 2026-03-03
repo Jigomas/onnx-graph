@@ -1,11 +1,10 @@
 #pragma once
 
+#include <stdexcept>
 #include <string>
-#include <vector>
-#include <map>
+#include <unordered_map>
 #include <variant>
-
-
+#include <vector>
 
 /**
  enum AttributeType {
@@ -27,55 +26,53 @@
     TYPE_PROTOS = 14;
   }
 */
-using AttrValue = std::variant <
-    int64_t,
-    float,
-    std::string,
-    std::vector<int32_t>,
-    std::vector<int64_t>,
-    std::vector<float>
->;
-
+using AttrValue = std::variant<int64_t,
+                               float,
+                               std::string,
+                               std::vector<int32_t>,
+                               std::vector<int64_t>,
+                               std::vector<float>>;
 
 namespace detail {
-    template<typename T>
-    inline constexpr bool is_attr_type_v =
-        std::is_same_v<T, int64_t>              ||
-        std::is_same_v<T, float>                ||
-        std::is_same_v<T, std::string>          ||
-        std::is_same_v<T, std::vector<int32_t>> || 
-        std::is_same_v<T, std::vector<int64_t>> ||
-        std::is_same_v<T, std::vector<float>>;
+template <typename T>
+inline constexpr bool is_attr_type_v =
+    std::is_same_v<T, int64_t> || std::is_same_v<T, float> || std::is_same_v<T, std::string> ||
+    std::is_same_v<T, std::vector<int32_t>> || std::is_same_v<T, std::vector<int64_t>> ||
+    std::is_same_v<T, std::vector<float>>;
 };
-
-
 
 class Node {
 public:
-    std::string                      name;
-    std::string                      op_type;
-    std::vector<std::string>         inputs;
-    std::vector<std::string>         outputs;
-    std::map<std::string, AttrValue> attributes;
-    
-    Node()                           = default;
-    ~Node()                          = default;
+    std::string name;
+    std::string op_type;
+    std::vector<std::string> inputs;
+    std::vector<std::string> outputs;
+    std::unordered_map<std::string, AttrValue> attributes;
 
-    Node(const Node&)                = default;
-    Node& operator=(const Node&)     = default;
+    Node() = default;
+    ~Node() = default;
 
-    Node(Node&&) noexcept            = default;
+    Node(const Node&) = default;
+    Node& operator=(const Node&) = default;
+
+    Node(Node&&) noexcept = default;
     Node& operator=(Node&&) noexcept = default;
 
-    template<typename T>
+    bool HasAttr(const std::string& key) const { return attributes.count(key) > 0; }
+
+    template <typename T>
     T GetAttr(const std::string& key, const T& default_val = T{}) const {
         static_assert(detail::is_attr_type_v<T>, "T is not an AttrValue type");
 
         auto it = attributes.find(key);
-        if (it == attributes.end()) return default_val;
-        if (const auto* val = std::get_if<T>(&it->second))
-            return *val;
-        
-        return default_val;
+        if (it == attributes.end())
+            return default_val;
+
+        const auto* val = std::get_if<T>(&it->second);
+        if (!val) {
+            throw std::runtime_error("Node::GetAttr: type mismatch for attribute '" + key + "'");
+        }
+
+        return *val;
     }
 };

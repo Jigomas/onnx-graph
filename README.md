@@ -44,7 +44,8 @@ wget -O third_party/onnx/onnx.proto3 https://raw.githubusercontent.com/onnx/onnx
 mv third_party/onnx/onnx.proto3 third_party/onnx/onnx.proto
 
 # Generate protobuf sources and build
-mkdir build && cd build
+mkdir build 
+cd build
 protoc --cpp_out=. -I ../third_party/onnx ../third_party/onnx/onnx.proto
 cmake ..
 make -j4
@@ -67,6 +68,7 @@ cd build
 
 
 #Or with visualizator
+mkdir test_viz_output
 cd /root/.a_Programming/onnx-graph
 chmod +x run_tests_with_viz.sh
 ./run_tests_with_viz.sh
