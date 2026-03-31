@@ -9,7 +9,7 @@ enum class DataType { FLOAT32, INT32, INT64, FLOAT64, UNKNOWN };
 class TensorShape {
 public:
     std::vector<int64_t> dims;
-    bool is_dynamic = false;
+    bool                 is_dynamic = false;
 
     int64_t rank() const noexcept { return static_cast<int64_t>(dims.size()); }
 
@@ -27,28 +27,28 @@ public:
 
     bool IsScalar() const noexcept { return dims.empty(); }
 
-    TensorShape() = default;
-    ~TensorShape() = default;
-    TensorShape(const TensorShape&) = default;
-    TensorShape& operator=(const TensorShape&) = default;
-    TensorShape(TensorShape&&) noexcept = default;
+    TensorShape()                                  = default;
+    ~TensorShape()                                 = default;
+    TensorShape(const TensorShape&)                = default;
+    TensorShape& operator=(const TensorShape&)     = default;
+    TensorShape(TensorShape&&) noexcept            = default;
     TensorShape& operator=(TensorShape&&) noexcept = default;
 };
 
 class Tensor {
 public:
-    std::string name;
-    DataType dtype = DataType::UNKNOWN;
-    TensorShape shape;
-    bool is_initializer = false;
+    std::string        name;
+    DataType           dtype = DataType::UNKNOWN;
+    TensorShape        shape;
+    bool               is_initializer = false;
     std::vector<float> data;
 
-    Tensor() = default;
+    Tensor()  = default;
     ~Tensor() = default;
 
-    Tensor(const Tensor&) = default;
+    Tensor(const Tensor&)            = default;
     Tensor& operator=(const Tensor&) = default;
 
-    Tensor(Tensor&&) noexcept = default;
+    Tensor(Tensor&&) noexcept            = default;
     Tensor& operator=(Tensor&&) noexcept = default;
 };

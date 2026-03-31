@@ -1,7 +1,7 @@
 # onnx-graph
 
-ONNX compiler frontend — loads a neural network from an .onnx file
-and builds a computational graph (DAG).
+ONNX tensor compiler — loads a neural network from an .onnx file,
+builds a computational graph, and compiles it through MLIR to LLVM IR and assembly.
 
 ## What it does
 
@@ -10,10 +10,13 @@ and builds a computational graph (DAG).
 - Supports ops: Conv, Relu, Add, Mul, MatMul, Gemm
 - Topological sort for correct execution order
 - Graphviz visualization
+- MLIR codegen (linalg dialect) for all supported ops
+- Lowering pipeline: MLIR → LLVM IR → assembly (via mlir-opt / mlir-translate / llc)
 
 ## Graph structure
-```
-  input 
+
+```text
+  input
     │
   [Conv]   
     │
@@ -29,12 +32,16 @@ and builds a computational graph (DAG).
 ```
 
 ## Dependencies
+
 ```bash
 sudo apt install cmake build-essential protobuf-compiler libprotobuf-dev graphviz
 sudo apt install eog
+# For MLIR/LLVM codegen (Ubuntu 22.04+):
+sudo apt install mlir-18-tools llvm-18
 ```
 
 ## Build
+
 ```bash
 # Download ONNX schema
 mkdir -p third_party/onnx
@@ -52,12 +59,38 @@ make -j4
 ```
 
 ## Run
+
 ```bash
 # Manual graph demo (no .onnx needed)
 ./onnx_graph
+
+# Load ONNX model
+./onnx_graph model.onnx
+
+# Generate MLIR
+./onnx_graph --emit-mlir --output out model.onnx
+# → out.mlir
+
+# Generate LLVM IR
+./onnx_graph --emit-llvmir --output out model.onnx
+# → out.mlir, out_lowered.mlir, out.ll
+
+# Generate assembly (x86-64 by default)
+./onnx_graph --emit-asm --output out model.onnx
+# → out.mlir, out_lowered.mlir, out.ll, out.s
+
+# Specify target and optimization level
+./onnx_graph --emit-asm --target aarch64 --opt-level 3 --output out model.onnx
+
+# Custom tool paths
+./onnx_graph --emit-asm --mlir-opt mlir-opt --mlir-translate mlir-translate --llc llc --output out
+
+# Visualize graph
+./onnx_graph --visualize graph.png model.onnx
 ```
 
 ## Tests
+
 ```bash
 # Run tests
 cd build
@@ -76,7 +109,8 @@ chmod +x run_tests_with_viz.sh
 ```
 
 ## Project structure
-```
+
+```text
 onnx-graph/
 ├── include/
 │   ├── tensor.hpp        # Tensor, TensorShape, DataType
@@ -85,12 +119,16 @@ onnx-graph/
 │   ├── graph_utils.hpp   # MakeNode, MakeTensor
 │   ├── onnx_loader.hpp   # file I/O
 │   ├── onnx_parser.hpp   # protobuf → Graph
-│   └── visualizer.hpp    # Graphviz .dot generator
+│   ├── visualizer.hpp    # Graphviz .dot generator
+│   ├── mlir_codegen.hpp  # Graph → MLIR (linalg dialect)
+│   └── compiler_driver.hpp # MLIR → LLVM IR → assembly pipeline
 ├── src/
 │   ├── graph.cpp
 │   ├── onnx_loader.cpp
 │   ├── onnx_parser.cpp
 │   ├── visualizer.cpp
+│   ├── mlir_codegen.cpp
+│   ├── compiler_driver.cpp
 │   └── main.cpp
 ├── tests/
 │   ├── test_graph_no_onnx.cpp   

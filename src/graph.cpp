@@ -15,7 +15,7 @@ Graph Graph::Clone() const {
     }
 
     copy.tensors = tensors;
-    copy.inputs = inputs;
+    copy.inputs  = inputs;
     copy.outputs = outputs;
 
     return copy;
@@ -84,7 +84,7 @@ std::vector<Node*> Graph::TopologicalSort() const {
     }
 
     std::unordered_map<std::string, VisitState> visited;
-    std::vector<Node*> result;
+    std::vector<Node*>                          result;
 
     result.reserve(nodes.size());
 
@@ -97,10 +97,10 @@ std::vector<Node*> Graph::TopologicalSort() const {
     return result;
 }
 
-void Graph::TopologicalSortData(Node* node,
-                                std::unordered_map<std::string, VisitState>& visited,
+void Graph::TopologicalSortData(Node*                                         node,
+                                std::unordered_map<std::string, VisitState>&  visited,
                                 const std::unordered_map<std::string, Node*>& tensor_producer,
-                                std::vector<Node*>& result) const {
+                                std::vector<Node*>&                           result) const {
     visited[node->name] = VisitState::GRAY;
 
     for (const auto& input_name : node->inputs) {

@@ -15,6 +15,8 @@ add_library(onnx_graph_lib
     src/onnx_loader.cpp
     src/onnx_parser.cpp
     src/visualizer.cpp
+    src/mlir_codegen.cpp
+    src/compiler_driver.cpp
     ${PROTO_SRCS}
 )
 

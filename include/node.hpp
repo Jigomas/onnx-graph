@@ -43,19 +43,19 @@ inline constexpr bool is_attr_type_v =
 
 class Node {
 public:
-    std::string name;
-    std::string op_type;
-    std::vector<std::string> inputs;
-    std::vector<std::string> outputs;
+    std::string                                name;
+    std::string                                op_type;
+    std::vector<std::string>                   inputs;
+    std::vector<std::string>                   outputs;
     std::unordered_map<std::string, AttrValue> attributes;
 
-    Node() = default;
+    Node()  = default;
     ~Node() = default;
 
-    Node(const Node&) = default;
+    Node(const Node&)            = default;
     Node& operator=(const Node&) = default;
 
-    Node(Node&&) noexcept = default;
+    Node(Node&&) noexcept            = default;
     Node& operator=(Node&&) noexcept = default;
 
     bool HasAttr(const std::string& key) const { return attributes.count(key) > 0; }

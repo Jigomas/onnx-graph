@@ -5,7 +5,7 @@
 #include "onnx.pb.h"
 
 Graph OnnxParser::Parse(const onnx::ModelProto& model) {
-    Graph graph(model.graph().name());
+    Graph       graph(model.graph().name());
     const auto& pg = model.graph();
 
     ParseTensors(pg, graph);
@@ -83,7 +83,7 @@ Tensor OnnxParser::ParseTensorInfo(const onnx::ValueInfoProto& info) {
         return tensor;
 
     const auto& tt = info.type().tensor_type();
-    tensor.dtype = MapDataType(tt.elem_type());
+    tensor.dtype   = MapDataType(tt.elem_type());
 
     if (tt.has_shape()) {
         for (const auto& dim : tt.shape().dim()) {
